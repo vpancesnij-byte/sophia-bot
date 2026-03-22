@@ -15,7 +15,7 @@ async def chat_handler(message: types.Message):
     try:
         response = await client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=
+            messages= [...] 
         )
         await message.answer(response.choices.message.content)
     except Exception as e:
