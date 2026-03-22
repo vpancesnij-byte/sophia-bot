@@ -1,5 +1,4 @@
-import os
-import asyncio
+import os, asyncio
 from aiogram import Bot, Dispatcher, types
 from openai import AsyncOpenAI
 
@@ -13,10 +12,7 @@ client = AsyncOpenAI(api_key=OPENAI_KEY)
 @dp.message()
 async def chat_handler(message: types.Message):
     try:
-        response = await client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages= [...] 
-        )
+        response = await client.chat.completions.create(model="gpt-3.5-turbo", messages=)
         await message.answer(response.choices.message.content)
     except Exception as e:
         await message.answer(f"Помилка: {e}")
