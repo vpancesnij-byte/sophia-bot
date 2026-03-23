@@ -1,25 +1,44 @@
-import os, asyncio
+import os
+import openai
 from aiogram import Bot, Dispatcher, types
-from openai import AsyncOpenAI
+from aiogram.types import Message
+from aiogram.utils import executor
 
+# --- токени ---
 TOKEN = os.getenv("TELEGRAM_TOKEN")
-OPENAI_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+openai.api_key = OPENAI_API_KEY
 
 bot = Bot(token=TOKEN)
-dp = Dispatcher()
-client = AsyncOpenAI(api_key=OPENAI_KEY)
+dp = Dispatcher(bot)
 
-@dp.message()
-async def chat_handler(message: types.Message):
+# --- обробка повідомлень ---
+@dp.message_handler()
+async def chat(message: Message):
     try:
-        response = await client.chat.completions.create(model="gpt-3.5-turbo", messages=)
-        await message.answer(response.choices.message.content)
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",  # дешевше і норм
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Ти — Софія, жива, саркастична, трохи нахабна дівчина. Веди себе як реальна людина."
+                },
+                {
+                    "role": "user",
+                    "content": message.text
+                }
+            ],
+            max_tokens=300
+        )
+
+        answer = response["choices"][0]["message"]["content"]
+
     except Exception as e:
-        await message.answer(f"Помилка: {e}")
+        answer = f"⚠️ Помилка: {e}"
 
-async def main():
-    print("Бот працює!")
-    await dp.start_polling(bot)
+    await message.answer(answer)
 
+# --- запуск ---
 if __name__ == "__main__":
-    asyncio.run(main())
+    executor.start_polling(dp)
